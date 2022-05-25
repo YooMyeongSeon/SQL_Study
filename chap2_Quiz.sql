@@ -10,7 +10,7 @@ select ename, salary, (salary*12)+100 as"연간총수입" from employee ORDER BY sala
 select ename, salary from employee WHERE salary > 2000 ORDER BY salary DESC;
 
 --4. 사원번호가7788인사원의이름과부서번호를출력하세요
-select ename, eno from employee WHERE eno = 7788;
+select ename, dno from employee WHERE eno = 7788;
 
 --5. 급여가2000에서3000사이에포함되지않는사원의이름과급여를출력하세요
 select ename, salary from employee WHERE salary not BETWEEN 2000 and 3000;
@@ -19,7 +19,8 @@ select ename, salary from employee WHERE salary not BETWEEN 2000 and 3000;
 select ename, job, hiredate from employee WHERE hiredate BETWEEN '81/02/20' and '81/05/01';
 
 --7. 부서번호가20 및30에속하는사원의이름과부서번호를출력하되이름을내림차순으로영문자순으로출력하세요
-select ename, dno from employee WHERE dno = 20 or dno = 30 ORDER BY ename ASC;
+select ename, dno from employee WHERE dno = 20 or dno = 30 ORDER BY ename DESC;
+select ename, dno from employee WHERE dno IN (20, 30) ORDER BY ename DESC;
 
 --8. 사원급여가2000에서3000사이에포함되고부서번호가20 또는30인사원의이름과급여와부서번호를출력하되이름을오름차순으로출력하세요
 select ename, salary, dno from employee WHERE salary BETWEEN 2000 and 3000 and (dno = 20 or dno = 30) ORDER BY ename DESC;
@@ -38,9 +39,11 @@ select ename from employee WHERE ename like '__R%';
 
 --13. 이름에A와E를모두포함하는사원이이름을출력하세요.
 select ename from employee where ename like '%A%E%';
+select ename from employee where ename like '%A%' and ename like '%E%';
 
 --14. 담당업무가사무원(CLERK) 또는영업사원(SALESMAN)이면서급여가$1600, $950 또는$1300이아닌사원의이름담당업무, 급여를출력하세요
 select ename, job, salary from employee where (job = 'CLERK' or job = 'SALESMAN') and (not salary=1600 and not salary=950 and not salary=1300);
+select ename, job, salary from employee where job in ('CLERK', 'SALESMAN') and salary not in (1600, 950, 1300);
 
 --15. 커미션이$500이상인사원의이름과급여및커미션을출력하세요.
 select ename, salary, commission from employee where commission >= 500;

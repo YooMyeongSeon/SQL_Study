@@ -1,5 +1,5 @@
 --1. SUBSTR 함수를사용하여사원들의입사한년도와입사한달만출력하세요.
-select substr(hiredate, 1, 7) from employee;
+select substr(hiredate, 1, 4) as "연도",substr(hiredate, 6, 2) as "달" from employee;
 
 --2. SUBSTR 함수를사용하여4월에입사한사원을출력하세요
 select * from employee WHERE substr(hiredate, 6, 2) = 04;
@@ -12,9 +12,11 @@ select to_char(hiredate,'YY MON DY') from employee;
 
 --5. 올해며칠이지났는지출력하세요. 현재날짜에서올해1월1일을뺀결과를출력하고TO_DATE 함수를사용하여데이터형을일치시키시오.
 select (TO_DATE('2022/05/24') - TO_DATE('2022/01/01')) from dual;
+select trunc(sysdate - TO_DATE('2022/01/01','YYYY/MM/DD')) from dual;
 
 --6. 사원들의상관사번을출력하되상관이없는사원에대해서는NULL 대신에0을출력하세요.
 select NVL(manager, 0) from employee;
+select NVL2(manager, manager, 0) from employee;
 
 --7. DECODE 함수로직급에따라급여를인상하도록하세요. 직급이'ANAIYST'인사원은200, 'SALESMAN'인사원은180, 'MANAGER'인사원은150,'CLERK'인사원은100을인상하세요.
 select ename, job, salary, decode(job, 'ANALYST', salary+200,
