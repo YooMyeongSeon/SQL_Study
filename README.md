@@ -1,5 +1,5 @@
 # SQL_Study
-### * chap2 : Select(조회)
+### * chap2 : Select(조회)(chapter/chap2.sql)
 ### * chap4 : 데이터 자료형
 ### * chap5 : 함수
 ### * chap6 : 그룹함수
