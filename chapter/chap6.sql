@@ -1,37 +1,22 @@
---그룹함수
+--SUM() : 총 합계를 구함, AVG() : 평균값을 구함, MAX() : 최대값을 구함, MIN() : 최소값을 구함
 select sum(salary) as "급여 총함", trunc(avg(salary)) as "평균 급여", max(salary) as "최대 급여", min(salary) as "최소 급여" from employee;
 
---입력된 사원의 수
+--COUNT() : 행의 갯수를 출력(COUNT(Distinct)로 중복을 제거하고 출력할 수 있다.)
 select count(*) from employee;
 
---커미션을 받는 사원의 수
-select count(commission) as "커미션 받는 사원" from employee;
-
---모든 커미션을 더한 값
+--그룹 함수는 기본적으로 null값을 연산에 포함하지 않고 진행한다.
 select sum(commission) from employee;
 
---행 갯수가 다른 컬럼을 같이 조회하면 오류가 난다.
---select ename, min(salary) from employee;
+--GROUP BY 컬럼 : 컬럼을 기준으로 그룹을 형성한다.
+select dno, job, trunc(avg(salary)) as "평균 급여" from employee group by dno, job order by dno;
 
---부서별, 직책별로 평균 급여를 출력하고 부서 번호별로 오름차순, 직급별로 내림차순 정렬
-select dno, job, trunc(avg(salary)) as "평균 급여" from employee group by dno, job order by dno asc, job desc;
-
---평균 급여가 2000이상인 그룹의 급여를 모두 더한 값을 구하라
---where를 사용하면 오류가 난다.(15번행)
---select job, sum(salary) from employee WHERE avg(salary) >= 2000 group by job;
---having을 사용한다.(그룹함수로 묶일때는 having을 사용)
+--HAVING : 그룹 조건문, 그룹 선언 후에 사용한다.
 select job, sum(salary) from employee group by job having avg(salary) >= 2000;
 
---select, from, where, group, having, order 순으로 입력해야한다.
+--ROLLUP() : 전체의 합을 구하는 것이 아닌 중간 합계가 필요할 때 사용
+select job, sum(salary) from employee group by rollup(job);
 
---부서별 최고 급여가 3000 이상인 부서의 부서번호와 해당 부서의 최고 급여를 구하라
-select dno, max(salary) from employee group by dno having max(salary) >= 3000;
-
---매니저를 제외하고 급여 총액이 5000 이상인 담당 직책, 급여 총액, 해당 인원수를 구하라
-select job, sum(salary), count(*) from employee where job != 'MANAGER' group by job having sum(salary) >= 5000;
-
---부서별 평균 급여중 최고 평균 급여를 조회하기
-select trunc(max(avg(salary))) from employee group by dno;
-
---
+--컬럼이 복수라면 컬럼 순서대로 그룹지어서 소연산을 진행
 select dno, job, sum(salary) from employee group by rollup(dno, job);
+
+--select, from, where, group, having, order 순으로 입력.

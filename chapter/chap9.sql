@@ -1,4 +1,3 @@
---DML : 데이터 조작어
 --insert : 데이터 삽입
 --insert into 테이블명 (컬럼명1, 컬럼명2..) values (데이터1, 데이터2..);
 insert into employee(eno, ename, job, manager, hiredate, salary, commission, dno)
