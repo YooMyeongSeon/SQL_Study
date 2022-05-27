@@ -1,22 +1,32 @@
---
-select ascii('T'), asciistr('밝'), chr(84), unistr('\BC1D') from dual;
+--차례대로 아스키값, 아스키값에 해당하는 문자, 유니코드 문자를 유니코드 값, 유니코드 값을 해당 유니코드 문자로 반환
+select ASCII('T'), CHR(84), ASCIISTR('천'), UNISTR('\CC9C') from dual;
+
+--차례대로 문자열의 길이, 문자열의 바이트 수, 유니코드 문자열의 길이를 반환
 select lengthc('오라클'), lengthb('오라클'), length('오라클') from dual;
 
+--두 개의 문자열을 결합, 두 개 이상의 문자열을 결합하는 함수
 select concat('기초기술','활용'), '기초'||'기술'||'활용' from dual;
 
-select ename||':'||job from employee;
-
---10이후로 나오는 '문자'를 찾아 위치를 표시하라
+--INSTR(기준문자열, 찾는문자열, 찾는위치) : 10이후로 나오는 '문자'를 찾아 위치를 표시
 select instr('자바에서 문자는 String 이고 자바스크립트에서 문자는 let이다.','문자',10) from dual;
 
+--INSTRB(기준문자열, 찾는문자열, 찾는위치) : 10이후로 나오는 '문자'를 찾아 위치를 바이트 단위로 표시
+select INSTRB('자바에서 문자는 String 이고 자바스크립트에서 문자는 let이다.','문자',10) from dual;
+
+--lower : 모든 문자를 소문자로 표시, UPPER : 모든 문자를 대문자로 표시, INITCAP : 단어의 첫글자만 대문자로 표시하고, 다른 문자들은 모두 소문자로 표시
 select lower('Student Name') from dual;
 select UPPER('Student Name') from dual;
+select INITCAP('student name') from dual;
 
---'자바'를 찾아 'Java'로 바꿔 출력하라
+--REPLACE(문자열, 기존문자열, 바꿀문자열) : '자바'를 찾아 'Java'로 바꿔 출력하라
 select replace('자바에서 문자는 String 이고 자바스크립트에서 문자는 let이다.','자바','Java') from dual;
 
---'자바'를 찾아 'Java'로 바꿔 출력하라
+--TRANSLATE(문자열, 기존문자열, 바꿀문자열) : REPLACE와는 다르게 한 글자씩만 찾아서 변환
 select TRANSLATE('자바에서 문자는 String 이고 자바스크립트에서 문자는 let이다.','자바','Java') from dual;
+
+
+
+
 
 select eno, ename, dno from employee where ename = 'scott';
 select eno, ename, dno from employee where ename = upper('scott');

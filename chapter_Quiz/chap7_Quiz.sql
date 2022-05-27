@@ -14,13 +14,13 @@ select job, avg(salary) from employee group by job having avg(salary) = (select 
 select ename, salary, dno from employee where salary in (select min(salary) from employee group by dno);
 
 --6. 담당업무가분석가(ANALYST)인사원보다급여가적으면서업무가분석가(ANALYST)아닌사원(사원번호, 이름, 담당업무,급여)들을표시하세요.
-select eno, ename, job, salary from employee where salary < all(select salary from employee where job='ANALYST') and not job = 'ANALYST';
+select eno, ename, job, salary from employee where salary < any(select salary from employee where job='ANALYST');
 
 --7. 매니저없는사원의이름을표시하세요.
-select ename from employee where manager is null;
+select ename from employee where eno in (select eno from employee where manager is null);
 
 --8. 매니저있는사원의이름을표시하세요.
-select ename from employee where manager is not null;
+select ename from employee where eno in (select eno from employee where manager is not null);
 
 --9. BLAKE와동일한부서에속한사원의이름과입사일을표시하세요.(단BLAKE는제외)
 select ename, hiredate from employee where dno = (select dno from employee where ename = 'BLAKE') and not ename = 'BLAKE';

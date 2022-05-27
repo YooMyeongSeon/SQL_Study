@@ -10,4 +10,4 @@ select to_number('100000') - to_number('50000') from dual;
 select ename, hiredate, to_char(hiredate, 'YY-MM'), to_char(hiredate, 'YYYY/MM/DD DAY') from employee;
 
 --CAST(표현식 AS 데이터 형식) :  표현식을 데이터 형식으로 변환
-select cast('10'+'20' as number) from dual; 
+select cast('10'+'20' as number) from dual;
