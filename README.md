@@ -9,3 +9,5 @@
 ### chap10 : [DDL(데이터 정의어), 테이블 제어](chapter/chap10.sql)
 ### chap11 : [데이터 무결성과 제약 조건](chapter/chap11.sql)
 ### chap12 : [시퀀스와 인덱스](chapter/chap12.sql)
+### chap13 : [뷰](chapter/chap13.sql)
+### chap14 : [사용자 권한](chapter/chap14.sql)

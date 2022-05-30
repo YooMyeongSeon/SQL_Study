@@ -32,19 +32,19 @@ select eno, ename from employee where salary > (select avg(salary) from employee
 select eno, ename from employee where dno in (select dno from employee where ename LIKE '%K%');
 
 --12. 부서위치가DALLAS인사원의이름과부서번호및담당업무를표시하세요.
-
+select ename, dno, job from employee where dno = (select dno from department where loc = 'DALLAS');
 
 --13. KING에게보고하는사원의이름과급여를표시하세요
-
+select ename, salary from employee where manager = (select eno from employee where ename = 'KING');
 
 --14. RESEARCH 부서의사원에대한부서번호, 사원번호및담당업무를출력하세요
-
+select dno, eno, job from employee where dno = (select dno from department where dname = 'RESEARCH');
 
 --15. 평균급여보다많은급여를받고이름에서M이포함된사원과같은부서에서근무하는사원의사원번호, 이름, 급여를출력하세요.
 select eno, ename, salary from employee where salary > (select avg(salary) from employee) and dno in (select dno from employee where ename LIKE '%M%');
 
 --16. 평균급여가가능적은업무를찾으세요
-select job from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
+select job, avg(salary) from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
 
 --17. 부하직원을가진사원의사원번호와이름을출력하세요
 select eno, ename from employee where eno in (select manager from employee);
