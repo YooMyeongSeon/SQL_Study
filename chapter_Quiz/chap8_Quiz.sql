@@ -1,32 +1,30 @@
---1. Equl조인을사용하여SCOTT 사원의부서번호와부서이름을출력하세요.
-select e.dno, ename, dname from employee e, department d where e.dno = d.dno and ename = 'SCOTT';
+--1. Employee테이블의구조만복사하여EMP_INSERT란빈테이블을만드세요.
+create table EMP_INSERT as select * from employee WHERE 0=1;
 
---2. Inner 조인과on연산자를사용하여사원이름과함께그사원이소속된부서이름과지역명을출력하세요.
-select ename, dname, loc from employee e inner join department d on e.dno = d.dno;
+--2. 본인을EMP_INSERT테이블에추가하되SYSDATE를이용해서입사일을오늘로입력하세요
+insert into EMP_INSERT values(9000, 'Mr.Yoo', 'Designer', 7698, sysdate, 3600, 200, 30);
 
---3. INNER 조인Using 연산자를사용하여10번부서에속하는모든담당업무의고유목록을부서의지역명을포함하여출력하세요.
-select dno, job, dname from employee e inner join department d Using(dno) where dno = 10;
+--3. EMP_INSERT 테이블에옆사람을추가하되TO_DATE함수를사용해서입사일을어제로입력하세요
+insert into EMP_INSERT values(9001, 'Mr.Choi', 'SALESMAN', 7698, TO_DATE('2022/05/25'), 3800, 500, 30);
 
---4. Natural조인을사용하여커미션을받는모든사원의이름, 부서이름, 지역명을출력하세요
-select ename, dname, loc from employee e NATURAL JOIN department d where commission is not null and commission != 0;
+--4. Employee테이블의구조와내용을복사하여EMP_COPY란이름의테이블을만드세요.
+create table EMP_COPY as select * from employee;
 
---5. Equal 조인과Wild카드를사용해서이름에A가포함된모든사원의이름과부서명을출력하세요,
-select ename, dname from  employee e, department d where e.dno = d.dno and ename like '%A%';
+--5. 사원번호가7788인사원의부서번호를10으로수정하세요.
+update emp_copy SET dno = 10 where eno = 7788;
 
---6. Natural 조인을사용하여NEW York에근무하는모든사원의이름, 업무부서번호및부서명을출력하세요.
-select ename, job, e.dno, dname from employee e, department d where e.dno = d.dno and LOC = 'NEW YORK';
+--6. 사원번호가7788의담당업무및급여를사원번호7499의담당업무및급여와일치하도록갱신하세요.
+update emp_copy SET job = (select job from emp_copy where eno = 7499), salary = (select salary from emp_copy where eno = 7499) where eno = 7788;
+update emp_copy SET (job, salary) = (select job, salary from emp_copy where eno = 7499) where eno = 7788;
 
---7. Self Join을사용하여사원의이름및사원번호를관리자이름및관리자번호와함께출력하세요. 각열의별칭은사원이름(Employee) 사원번호(emp#) 관리자이름(Manager) 관리자번호(Mgr#)
-select e.ename AS "Employee", e.eno AS "emp#", me.ename as "Manager", me.eno AS "Mgr#" from employee e, employee me where e.manager = me.eno;
+--7. 사원번호7369와업무가동일한모든사원의부서번호를사원7369의현재부서번호로갱신하세요.
+update emp_copy set dno = (select dno from emp_copy where eno = 7369) where job = (select job from emp_copy where eno = 7369);
 
---8. Outter조인self 조인을사용하여관리자가없는사원을포함하여사원번호를기준으로내림차순정렬하여클릭하세요각열의별칭은사원이름(Employee)사원번호(emp#)관리자이름(Manager)관리자번호(Mgr#)
-select e.ename as "Employee", e.eno as "emp#", me.ename as "Manager", me.eno as "Mgr#" from employee e left outer join employee me on e.manager = me.eno order by e.eno desc;
+--8. Department테이블의구조와내용을복사하여DEPT_COPY란이름의테이블을만드세요
+create table DEPT_COPY as select * from Department;
 
---9. Self조인을사용하여지정한사원(SCOTT)의이름, 부서번호, 지정한사원과동일한부서에서근무하는사원을출력하세요각열의별칭은이름, 부서번호, 동료로지정하세요
-select e.ename as "이름", e.dno as "부서번호", d.ename as "동료" from employee e, employee d where e.ename = 'SCOTT' and d.dno = e.dno and d.ename != 'SCOTT';
+--9. DEPT_COPY테이블에서부서명이RESEARCH인부서를제거하세요.
+delete from DEPT_COPY where dname = 'RESEARCH'; 
 
---10. Self 조인을사용하여WARD 사원보다늦게입사한사원의이름과입사일을출력하세요.
-select o.ename, o.hiredate from employee w, employee o where w.ename = 'WARD' and w.hiredate < o.hiredate;
-
---11. Self조인을사용하여관리자보다먼저입사한모든사원의이름및입사일을관리자의이름및입사입과함께출력하세요. 각열의별칭은사원이름(Ename) 사원입사일(HIERDATE) 관리자이름(Ename) 관리자입사입(HIERDATE)로출력하세요.
-select e.ename as "Ename", e.hiredate as "HIERDATE", m.ename as "Ename", m.hiredate as "HIERDATE" from employee e, employee m where e.manager = m.eno and e.hiredate < m.hiredate;
+--10. DEPT_COPY테이블에서부서번호가10이거나40인부서를제거하세요.
+delete from DEPT_COPY where dno = 10 or dno = 40;

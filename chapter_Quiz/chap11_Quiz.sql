@@ -1,13 +1,17 @@
---1. Employee테이블의구조를복사하여EMP_SAMPLE란이름의테이블을만드세요 사원테이블의사원번호칼럼에테이블레벨로primarykey제약조건을지정하되제약조건이름은my_emp_pk로지정하세요.
-create table EMP_SAMPLE as select * from Employee where 1=0;
-alter table EMP_SAMPLE add CONSTRAINT my_emp_pk primary key(eno);
+--0.아래표를사용해서테이블을만드세요. 테이블명(emp01)(파일참조)
+create table emp01(empno number(4),
+                   ename varchar2(10),
+                   hiredate date);
 
---2. department테이블의구조를복사하여dept_sample이란테이블을만드세요. dept_sample의부서번호칼럼에테이블레벨로primarykey제약조건을지정하되제약조건이름은my_dept_pk로지정하세요.
-create table dept_sample as select * from department where 1=0;
-alter table dept_sample add CONSTRAINT my_dept_pk primary key(dno);
+--1.사원테이블의사원번호가자동으로생성되도록시퀀스를생성하시오.(시작값: 1, 증가값:1 최대값:100000)
+create sequence seq_empno start with 1 increment by 1 maxvalue 100000;
+    
+--2. 사원번호를시퀀스로부터발급받아서오른쪽테이블에데이터를입력하세요.
+--1)사원이름: Julia, 입사일: sysdate)
+insert into emp01 values(seq_empno.nextval, 'Julia', sysdate);
 
---3.사원테이블의부서번호칼럼에존재하지않는부서의사원이배정되지않도록외래키제약조건을지정하되제약조건이름은my_emp_dept_fk로지정하세요.
-alter table EMP_SAMPLE add CONSTRAINT my_emp_dept_fk FOREIGN key(dno) references dept_sample(dno);
+--2)사원이름: Alice입사입: 2020/12/31
+insert into emp01 values(seq_empno.nextval, 'Alice', to_date('20201231', 'YYYYMMDD'));
 
---4. 사원테이블의커미션컬럼에0보다큰값만을입력할수있   도록제약조건을지정하세요
-alter table EMP_SAMPLE modify commission check(0 < commission);
+--3. EMP01테이블의이름칼럼을인덱스로설정하되인덱스이름을IDX_EMP01_EName로지정하세요.\
+create index IDX_EMP01_EName on EMP01(ename);

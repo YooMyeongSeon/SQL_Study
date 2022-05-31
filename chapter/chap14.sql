@@ -1,57 +1,134 @@
---CMD : SQLPLUS 접속하여 진행
+--SET SERVEROUTPUT ON : 출력하기 위한 환경변수(워크시트당 한 번만 실행됨)
+SET SERVEROUTPUT ON;
 
---시스템 권한
---유저 생성(연결 권한을 설정해주지 않으면 로그인할 수 없다.)
-create user user_test01 identified by 1234;
+--선언부, 실행부, 예외처리부의 구조를 가진다. 
 
---권한 부여(세션과 테이블에 대한 생성 권한 부여) : CREATE SESSION : 데이터베이스에 연결할 수 있는 권한 / TABLE : 테이블을 생성 / SEQUENCE : 시퀀스를 생성 / VIEW : 뷰를 생성할 수 있는 권한
-grant create session, create table to user_test01;
+--DECLARE : 선언부
+DECLARE
+    name_01 varchar2(10):= '유명선'; --선언방식 : 이름 타입 := 데이터; / 타입 : 1. 스칼라(기존의 SQL에서 사용하던 데이터 타입)
+    name_02 employee.ename%type := '유명선'; --2. 레퍼런스(이미 다른 테이블의 컬럼에서 사용하는 타입을 참조한 타입)
+    eno_01 CONSTANT employee.eno%type; --상수는 변수명 뒤에 CONSTANT을 붙인다.
+    eno_02 employee.eno%type NOT NULL := 0; --초기값을 반드시 지정해야 한다면 타입명 뒤에 NOT NULL을 붙인다.
+    
+--BEGIN : 실행부
+BEGIN
+    dbms_output.put_line('Hello world'); --기본 출력문
+    eno := 7788;
+    name_02 := 'SCOTT';
+    dbms_output.put_line('사원번호 : '||eno||' / 사원이름 : '||name_02);
+END;
 
---WITH GRANT OPTION : 관리자의 권한을 주며 권한 부여(관리자 권한을 부여받은 계정은 관리자와 같은 권한을 부여할 수 있다.)
-grant create session, create table to user_test01 WITH GRANT OPTION;
+--select문을 사용하여 변수값을 할당하는 방법
+DECLARE
+    v_eno employee.eno%type;
+    v_ename employee.ename%type;
+BEGIN
+    select eno, ename into v_eno, v_ename from employee where eno=7788; --into로 바인딩
+    dbms_output.put_line('사원번호 : '||v_eno||' / 사원이름 : '||v_ename);
+END;
 
---저장 용량 부여(100메가바이트, 디벨로퍼 에서는 자동 용량을 기본으로 지정한다. )
-alter user user_test01 quota 100m on users;
-alter user user_test01 default tablespace users;
+--조건문(SCOTT사원의 연봉을 계산하라)
+DECLARE
+    v_salary employee.salary%type;
+    v_commission employee.commission%type;
+    v_y_sal number := 0;
+BEGIN
+    select salary, commission into v_salary, v_commission from employee where ename='SCOTT';
+    
+    if v_commission is null then --커미션이 없다면
+        v_y_sal := v_salary * 12;
+    elsif v_commission is not null then --커미션이 있다면
+        v_y_sal := (v_salary * 12) + v_commission;
+    end if;    
+    
+    dbms_output.put_line('SCOTT 사원의 연봉 : '||v_y_sal);
+END;
 
---계정이 사용가능 한 테이블 스페이스를 확인(관리자)
-select username, default_tablespace from dba_users where username = user_test01;
+--반복문(기본 루프문 : 구구단 5단 출력)
+DECLARE
+    dan NUMBER := 5;
+    i NUMBER := 1;
+BEGIN
+    dbms_output.put_line('구구단 5단');
+    LOOP
+        dbms_output.put_line(dan||' x '||i||' = '||(dan*i));
+        i := i+1;
+        if i  > 9 then --if문으로 조건을 만들어 탈출한다.
+            exit;
+        end if;    
+    END LOOP;
+END;
 
---권한 제거
-revoke create session from user_test01;
+--반복문(for 루프문 : 구구단 3단 출력)
+DECLARE
+    dan NUMBER := 3;
+    i NUMBER := 1;
+BEGIN
+    dbms_output.put_line('구구단 3단');
+    for i in 1..9 loop
+        dbms_output.put_line(dan||' x '||i||' = '||(dan*i));
+    END LOOP;
+END;
 
---유저 접속(비밀번호를 입력한다.)
-conn user_test01;
+--반복문(while 루프문 : 구구단 9단 출력)
+DECLARE
+    dan NUMBER := 9;
+    i NUMBER := 1;
+BEGIN
+    dbms_output.put_line('구구단 9단');
+    while i < 10 loop
+        dbms_output.put_line(dan||' x '||i||' = '||(dan*i));
+        i := i+1;
+    END LOOP;
+END;
 
---접속된 유저 확인
-show user;
+--CURSOR : 커서(조회 결과가 여러 레코드일 경우 사용 / 전체 사원번호, 사원이름, 급여, 부서번호를 출력)
+DECLARE
+    v_eno employee.eno%type;
+    v_ename employee.ename%type;
+    v_salary employee.salary%type;
+    v_dno employee.dno%type;
+    cursor c_emp is select eno, ename, salary, dno from employee;
+BEGIN
+    dbms_output.put_line('사원번호 / 이름 / 급여 / 부서번호');
+    dbms_output.put_line('------------------------------');
+    open c_emp;
+        loop
+            fetch c_emp into v_eno, v_ename, v_salary, v_dno;
+            dbms_output.put_line(v_eno||' / '||v_ename||' / '||v_salary||' / '||v_dno);
+            if c_emp%notfound then
+                exit;
+            end if;
+        end loop;  
+    close c_emp;
+END;
 
---비밀번호 변경
-alter user user_test01 identified by 5678;
+--ROWTYPE 사용법 / 전체 사원번호, 사원이름, 급여, 부서번호를 출력)
+DECLARE
+    v_emp employee%rowtype;
+    cursor c_emp is select eno, ename, salary, dno from employee;
+BEGIN
+    dbms_output.put_line('사원번호 / 이름 / 급여 / 부서번호');
+    dbms_output.put_line('------------------------------');
+    open c_emp;
+        loop
+            fetch c_emp into v_emp.eno, v_emp.ename, v_emp.salary, v_emp.dno;
+            if c_emp%notfound then
+                exit;
+            end if;
+            dbms_output.put_line(v_emp.eno||' / '||v_emp.ename||' / '||v_emp.salary||' / '||v_emp.dno);
+        end loop;  
+    close c_emp;
+END;
 
-
-
---객체 권한
-
---객체에 대한 테이블 조회 권한 부여(grant select on 소유계정.테블명 to 할당계정;)
-grant select on test.employee to user_test01;
-
---PUBLIC : 권한 부여 받은 사용자도 해당 권한을 또 다른 사용자에게 넘겨줄 수 있다.
-grant create session, create table to PUBLIC;
-
---롤을 사용한 권한부여 : DBA(모든 권한), CONNECT(기본), RESOURCE(객체 생성)
-grant connect, resource to user_test01;
-
---자신에게 부여된 롤 확인
-select * from user_role_privs;
-
---롤에 부여된 테이블과 관련된 권한 정보를 알려주는 데이터 사전
-select from role_tab_privs;
-
---롤 생성(관리자)
-create role test_Role;
-grant create session, create table, create view to test_Role;
-grant test_Role to user_test01;
-
---롤 삭제
-DROP ROLE test_Role;
+--for 반복문과 ROWTYPE 이용한 cursor 처리
+DECLARE
+    v_emp employee%rowtype;
+    cursor c_emp is select eno, ename, salary, dno from employee;
+BEGIN
+    dbms_output.put_line('사원번호 / 이름 / 급여 / 부서번호');
+    dbms_output.put_line('------------------------------');
+    for v_emp in c_emp loop
+        dbms_output.put_line(v_emp.eno||' / '||v_emp.ename||' / '||v_emp.salary||' / '||v_emp.dno);
+    end loop;
+END;

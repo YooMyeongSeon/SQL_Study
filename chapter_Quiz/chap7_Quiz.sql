@@ -1,50 +1,32 @@
---1. 사원번호가7788인사원과담당업무가같은사원을표시(사원이름과담당업무)하세요.
-select ename, job from employee where job=(select job from employee where eno='7788');
+    --1. Equl조인을사용하여SCOTT 사원의부서번호와부서이름을출력하세요.
+select e.dno, ename, dname from employee e, department d where e.dno = d.dno and ename = 'SCOTT';
 
---2. 사원번호가7499인사원보다급여가많은사원을표시(사원이름과담당업무)하세요
-select ename, job from employee where salary > (select salary from employee where eno='7499');
+--2. Inner 조인과on연산자를사용하여사원이름과함께그사원이소속된부서이름과지역명을출력하세요.
+select ename, dname, loc from employee e inner join department d on e.dno = d.dno;
 
---3. 최소급여를받는사원의이름, 담당업무및급여를표시하세요(그룹함수)
-select ename, job, salary from employee where salary = (select min(salary) from employee);
+--3. INNER 조인Using 연산자를사용하여10번부서에속하는모든담당업무의고유목록을부서의지역명을포함하여출력하세요.
+select dno, job, dname from employee e inner join department d Using(dno) where dno = 10;
 
---4. 평균급여가가장적은업무를찾아직급과평균급여를표시하세요
-select job, avg(salary) from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
+--4. Natural조인을사용하여커미션을받는모든사원의이름, 부서이름, 지역명을출력하세요
+select ename, dname, loc from employee e NATURAL JOIN department d where commission is not null and commission != 0;
 
---5. 각부서의최소급여를받는사원이름,급여, 부서번호를표시하세요.
-select ename, salary, dno from employee where salary in (select min(salary) from employee group by dno);
+--5. Equal 조인과Wild카드를사용해서이름에A가포함된모든사원의이름과부서명을출력하세요,
+select ename, dname from  employee e, department d where e.dno = d.dno and ename like '%A%';
 
---6. 담당업무가분석가(ANALYST)인사원보다급여가적으면서업무가분석가(ANALYST)아닌사원(사원번호, 이름, 담당업무,급여)들을표시하세요.
-select eno, ename, job, salary from employee where salary < any(select salary from employee where job='ANALYST');
+--6. Natural 조인을사용하여NEW York에근무하는모든사원의이름, 업무부서번호및부서명을출력하세요.
+select ename, job, dno, dname from employee e Natural join department d where LOC = 'NEW YORK';
 
---7. 매니저없는사원의이름을표시하세요.
-select ename from employee where eno in (select eno from employee where manager is null);
+--7. Self Join을사용하여사원의이름및사원번호를관리자이름및관리자번호와함께출력하세요. 각열의별칭은사원이름(Employee) 사원번호(emp#) 관리자이름(Manager) 관리자번호(Mgr#)
+select e.ename AS "Employee", e.eno AS "emp#", me.ename as "Manager", me.eno AS "Mgr#" from employee e, employee me where e.manager = me.eno;
 
---8. 매니저있는사원의이름을표시하세요.
-select ename from employee where eno in (select eno from employee where manager is not null);
+--8. Outter조인self 조인을사용하여관리자가없는사원을포함하여사원번호를기준으로내림차순정렬하여클릭하세요각열의별칭은사원이름(Employee)사원번호(emp#)관리자이름(Manager)관리자번호(Mgr#)
+select e.ename as "Employee", e.eno as "emp#", me.ename as "Manager", me.eno as "Mgr#" from employee e left outer join employee me on e.manager = me.eno order by e.eno desc;
 
---9. BLAKE와동일한부서에속한사원의이름과입사일을표시하세요.(단BLAKE는제외)
-select ename, hiredate from employee where dno = (select dno from employee where ename = 'BLAKE') and not ename = 'BLAKE';
+--9. Self조인을사용하여지정한사원(SCOTT)의이름, 부서번호, 지정한사원과동일한부서에서근무하는사원을출력하세요각열의별칭은이름, 부서번호, 동료로지정하세요
+select e.ename as "이름", e.dno as "부서번호", d.ename as "동료" from employee e, employee d where e.ename = 'SCOTT' and d.dno = e.dno and d.ename != 'SCOTT';
 
---10. 급여가평균보다많은사원들의사원번호와이름을표시하되결과를급여에대한오름차순으로정렬하세요.,
-select eno, ename from employee where salary > (select avg(salary) from employee) order by salary asc;
+--10. Self 조인을사용하여WARD 사원보다늦게입사한사원의이름과입사일을출력하세요.
+select o.ename, o.hiredate from employee w, employee o where w.ename = 'WARD' and w.hiredate < o.hiredate;
 
---11. 이름에K가포함된사원과같은부서에서일하는사원의사원번호와이름을표시하세요.
-select eno, ename from employee where dno in (select dno from employee where ename LIKE '%K%');
-
---12. 부서위치가DALLAS인사원의이름과부서번호및담당업무를표시하세요.
-select ename, dno, job from employee where dno = (select dno from department where loc = 'DALLAS');
-
---13. KING에게보고하는사원의이름과급여를표시하세요
-select ename, salary from employee where manager = (select eno from employee where ename = 'KING');
-
---14. RESEARCH 부서의사원에대한부서번호, 사원번호및담당업무를출력하세요
-select dno, eno, job from employee where dno = (select dno from department where dname = 'RESEARCH');
-
---15. 평균급여보다많은급여를받고이름에서M이포함된사원과같은부서에서근무하는사원의사원번호, 이름, 급여를출력하세요.
-select eno, ename, salary from employee where salary > (select avg(salary) from employee) and dno in (select dno from employee where ename LIKE '%M%');
-
---16. 평균급여가가능적은업무를찾으세요
-select job, avg(salary) from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
-
---17. 부하직원을가진사원의사원번호와이름을출력하세요
-select eno, ename from employee where eno in (select manager from employee);
+--11. Self조인을사용하여관리자보다먼저입사한모든사원의이름및입사일을관리자의이름및입사입과함께출력하세요. 각열의별칭은사원이름(Ename) 사원입사일(HIERDATE) 관리자이름(Ename) 관리자입사입(HIERDATE)로출력하세요.
+select e.ename as "Ename", e.hiredate as "HIERDATE", m.ename as "Ename", m.hiredate as "HIERDATE" from employee e, employee m where e.manager = m.eno and e.hiredate < m.hiredate;

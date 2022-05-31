@@ -1,36 +1,50 @@
---1. 모든사원의급여최고액, 최저액, 총액및평균급여를출력하세요. 칼럼의명칭은최고액(Maximun) 최저액(Minimun), 총액(Sum), 평균급여(Average)로지정하고평균에대해서는정수로반올림하세요.
-select max(salary) as "Maximun", min(salary) as "Minimun", Sum(salary) as "Sum", round(avg(salary)) as "Average" from employee;
+--1. 사원번호가7788인사원과담당업무가같은사원을표시(사원이름과담당업무)하세요.
+select ename, job from employee where job=(select job from employee where eno='7788');
 
---2. 각담당업무유형별로급여최고액, 최저액, 총액및평균액을출력하세요. 칼럼의명칭은최고액(Maximun) 최저액(Minimun), 총액(Sum), 평균급여(Average)로지정하고평균에대해서는정수로반올림하세요.
-select job as "JOB", max(salary) as "Maximun", min(salary) as "Minimun", Sum(salary) as "Sum", round(avg(salary)) as "Average" from employee group by job;
+--2. 사원번호가7499인사원보다급여가많은사원을표시(사원이름과담당업무)하세요
+select ename, job from employee where salary > (select salary from employee where eno='7499');
 
---3. Count(*)함수를이용해서담당업무가동일한사원의수를출력하세요
-select job, count(*) from employee group by job;
+--3. 최소급여를받는사원의이름, 담당업무및급여를표시하세요(그룹함수)
+select ename, job, salary from employee where salary = (select min(salary) from employee);
 
---4. 관리자의수를나열하세요. 칼럼의별칭은COUNT(MANAGER)로출력하세요.
-select count(distinct(MANAGER)) as "COUNT(MANAGER)" from employee;
+--4. 평균급여가가장적은업무를찾아직급과평균급여를표시하세요
+select job, avg(salary) from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
 
---5. 급여최고액, 급여최저액의차액을출력하세요. 칼럼의별칭DIFFERENCE로지정하세요
-select max(salary)-min(salary) as "DIFFERENCE" from employee;
+--5. 각부서의최소급여를받는사원이름,급여, 부서번호를표시하세요.
+select ename, salary, dno from employee where salary in (select min(salary) from employee group by dno);
 
---6. 직급별사원의최저급여를출력하세요. 관리자를알수없는사원및최저급여가2000미만인그룹은제외시키고급여에대한내림차순으로정렬하여출력하세요.
-select job, min(salary) from employee where manager is not null group by job having min(salary) > 2000 order by min(salary) desc;
+--6. 담당업무가분석가(ANALYST)인사원보다급여가적으면서업무가분석가(ANALYST)아닌사원(사원번호, 이름, 담당업무,급여)들을표시하세요.
+select eno, ename, job, salary from employee where salary < any(select salary from employee where job='ANALYST');
 
---7. 각부서에대해부서번호, 사원수, 부서내의모든사원의평균급여를출력하시오, 칼럼의별칭은부서번호(DNO), 사원수(Numberof PeoPle), 평균급여(Salary)로지정하고평균급여는소수점2째자리에서반올림하세요.
-select dno, count(*) as "Numberof PeoPle", ROUND(avg(salary),2) as "Salary" from employee group by dno;
+--7. 매니저없는사원의이름을표시하세요.
+select ename from employee where eno in (select eno from employee where manager is null);
 
---8. 각부서에대해부서번호이름, 지역명, 사원수, 부서내의모든사원의평균급여를출력하시오. 칼럼의별칭은부서번호이름(DName), 지역명(Location), 사원수(Numberof PeoPle), 평균급여(Salary)로지정하고평균급여는정수로반올림하세요.
-select dno, decode(dno, 10, 'ACCOUNTING',
-                        20, 'RESEARCH',
-                        30, 'SALES',
-                        40, 'OPERATIONS') as "DName",
-            decode(dno, 10, 'NEW YORK',
-                        20, 'DALLAS',
-                        30, 'CHICAGO',
-                        40, 'BOSTON') as "Location",
-count(*) as "Number of PeoPle",
-round(avg(salary)) as "Salary"
-from employee group by dno;
+--8. 매니저있는사원의이름을표시하세요.
+select ename from employee where eno in (select eno from employee where manager is not null);
 
---9. 업무를표시한다음해당업무에대해부서번호별급여및부서10,20,30의급여총액을각각출력하시오. 각칼럼의별칭은각각job, 부서10,부서20, 부서30, 총액으로지정하세요.
-select dno, job, NVL(sum(decode(dno, 10, salary)), 0) as "부서10",  NVL(sum(decode(dno, 20, salary)), 0) as "부서20", NVL( sum(decode(dno, 30, salary)), 0) as "부서30", sum(salary) from employee group by dno, rollup(job);
+--9. BLAKE와동일한부서에속한사원의이름과입사일을표시하세요.(단BLAKE는제외)
+select ename, hiredate from employee where dno = (select dno from employee where ename = 'BLAKE') and not ename = 'BLAKE';
+
+--10. 급여가평균보다많은사원들의사원번호와이름을표시하되결과를급여에대한오름차순으로정렬하세요.,
+select eno, ename from employee where salary > (select avg(salary) from employee) order by salary asc;
+
+--11. 이름에K가포함된사원과같은부서에서일하는사원의사원번호와이름을표시하세요.
+select eno, ename from employee where dno in (select dno from employee where ename LIKE '%K%');
+
+--12. 부서위치가DALLAS인사원의이름과부서번호및담당업무를표시하세요.
+select ename, dno, job from employee where dno = (select dno from department where loc = 'DALLAS');
+
+--13. KING에게보고하는사원의이름과급여를표시하세요
+select ename, salary from employee where manager = (select eno from employee where ename = 'KING');
+
+--14. RESEARCH 부서의사원에대한부서번호, 사원번호및담당업무를출력하세요
+select dno, eno, job from employee where dno = (select dno from department where dname = 'RESEARCH');
+
+--15. 평균급여보다많은급여를받고이름에서M이포함된사원과같은부서에서근무하는사원의사원번호, 이름, 급여를출력하세요.
+select eno, ename, salary from employee where salary > (select avg(salary) from employee) and dno in (select dno from employee where ename LIKE '%M%');
+
+--16. 평균급여가가능적은업무를찾으세요
+select job, avg(salary) from employee group by job having avg(salary) = (select min(avg(salary)) from employee group by job);
+
+--17. 부하직원을가진사원의사원번호와이름을출력하세요
+select eno, ename from employee where eno in (select manager from employee);

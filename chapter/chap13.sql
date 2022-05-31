@@ -1,35 +1,57 @@
---뷰 생성 : create view 뷰 이름(컬럼1, 컬럼2) as select 컬럼1, 컬럼2 from 테이블 이름;(※뷰 컬럼명 생략 가능)
-create view v_emp_job(사원번호, 사원이름, 부서번호, 담당업무) as select eno, ename, dno, job from emp_second where job = 'SALESMAN';
+--CMD : SQLPLUS 접속하여 진행
 
---뷰 조회(단순 뷰 : 하나의 테이블을 조회, 복합 뷰 : 두 개 이상의 테이블(조인)을 조회)
-select * from v_emp_job;
+--시스템 권한
+--유저 생성(연결 권한을 설정해주지 않으면 로그인할 수 없다.)
+create user user_test01 identified by 1234;
 
---복합 뷰 생성(함수를 사용할 경우 가상의 컬럼이기 때문에 반드시 별칭을 지정해야 한다. / 입력, 수정은 불가능하다.)
-create view v_emp_salary as select dno, sum(salary) 급여합계, avg(salary) 급여평균 from emp_second group by dno;
+--권한 부여(세션과 테이블에 대한 생성 권한 부여) : CREATE SESSION : 데이터베이스에 연결할 수 있는 권한 / TABLE : 테이블을 생성 / SEQUENCE : 시퀀스를 생성 / VIEW : 뷰를 생성할 수 있는 권한
+grant create session, create table to user_test01;
 
---OR REPLACE : 뷰 자체 내용 수정(없다면 생성하고, 있다면 수정하라의 방식으로 보편적으로 사용하는 방법)
-create or REPLACE view v_emp_job(사번, 이름, 부서, 업무) as select eno, ename, dno, job from emp_second where job = 'SALESMAN';
+--WITH GRANT OPTION : 관리자의 권한을 주며 권한 부여(관리자 권한을 부여받은 계정은 관리자와 같은 권한을 부여할 수 있다.)
+grant create session, create table to user_test01 WITH GRANT OPTION;
 
---FORCE : 테이블이 없어도 강제로 뷰를 생성할 수 있다.(NOFORCE : 테이블이 반드시 존재해야 한다.)
-create or REPLACE force view v_emp_job(사번, 이름, 부서, 업무) as select eno, ename, dno, job from emp_second where job = 'SALESMAN';
+--저장 용량 부여(100메가바이트, 디벨로퍼 에서는 자동 용량을 기본으로 지정한다. )
+alter user user_test01 quota 100m on users;
+alter user user_test01 default tablespace users;
 
---생성된 모든 뷰 조회(text : SQL)
-select view_name, text from user_views;
+--계정이 사용가능 한 테이블 스페이스를 확인(관리자)
+select username, default_tablespace from dba_users where username = user_test01;
 
---WITH CHECK OPTION : 해당 뷰를 통해서 볼 수 있는 범위 내에서만 수정이 가능하게 만든다.
-create view v_emp_job(사원번호, 사원이름, 부서번호, 담당업무) as select eno, ename, dno, job from emp_second where job = 'SALESMAN' WITH CHECK OPTION;
+--권한 제거
+revoke create session from user_test01;
 
---WITH READ ONLY : 읽기 전용 뷰를 만들고, 수정이 불가능 하다.
-create view v_emp_job(사원번호, 사원이름, 부서번호, 담당업무) as select eno, ename, dno, job from emp_second where job = 'SALESMAN' WITH READ ONLY;
+--유저 접속(비밀번호를 입력한다.)
+conn user_test01;
 
---뷰에 데이터 입력
-insert into v_emp_job values(9000, 'Bill', 30, 'SALESMAN');
+--접속된 유저 확인
+show user;
 
---뷰에 입력된 데이터 수정
-update v_emp_job set 사원이름 = 'billy' where 사원번호 = 9000;
+--비밀번호 변경
+alter user user_test01 identified by 5678;
 
---뷰에 입력된 데이터 삭제
-delete from v_emp_job where 사원번호 = 9000;
 
---뷰 삭제
-drop view v_emp_job;
+
+--객체 권한
+
+--객체에 대한 테이블 조회 권한 부여(grant select on 소유계정.테블명 to 할당계정;)
+grant select on test.employee to user_test01;
+
+--PUBLIC : 권한 부여 받은 사용자도 해당 권한을 또 다른 사용자에게 넘겨줄 수 있다.
+grant create session, create table to PUBLIC;
+
+--롤을 사용한 권한부여 : DBA(모든 권한), CONNECT(기본), RESOURCE(객체 생성)
+grant connect, resource to user_test01;
+
+--자신에게 부여된 롤 확인
+select * from user_role_privs;
+
+--롤에 부여된 테이블과 관련된 권한 정보를 알려주는 데이터 사전
+select from role_tab_privs;
+
+--롤 생성(관리자)
+create role test_Role;
+grant create session, create table, create view to test_Role;
+grant test_Role to user_test01;
+
+--롤 삭제
+DROP ROLE test_Role;

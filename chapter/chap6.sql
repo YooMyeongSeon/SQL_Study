@@ -1,22 +1,12 @@
---SUM() : 총 합계를 구함, AVG() : 평균값을 구함, MAX() : 최대값을 구함, MIN() : 최소값을 구함
-select sum(salary) as "급여 총함", trunc(avg(salary)) as "평균 급여", max(salary) as "최대 급여", min(salary) as "최소 급여" from employee;
+--단일행 서브쿼리 : scott보다 급여를 많이 받는 사람의 이름과 급여를 출력
+select ename, salary from employee where salary > (select salary from employee where ename = 'SCOTT');
 
---COUNT() : 행의 갯수를 출력(COUNT(Distinct)로 중복을 제거하고 출력할 수 있다.)
-select count(*) from employee;
+--그룹 함수를 사용한 단일행 서브쿼리 : 각 부서별 최소 급여가 30번 부서의 최소급여보다 큰 부서의 부서번호와 최소급여를 출력
+select dno, min(salary) from employee group by dno having min(salary) > (select min(salary) from employee where dno=30);
 
---그룹 함수는 기본적으로 null값을 연산에 포함하지 않고 진행한다.
-select sum(commission) from employee;
+--다중행 서브쿼리 : 직급이 salesman이 아니면서 급여가 salesman보다 낮은 사원을 출력하라
+select ename, salary from employee where not job = 'SALESMAN' and salary < any(select salary from employee where job = 'SALESMAN');
 
---GROUP BY 컬럼 : 컬럼을 기준으로 그룹을 형성한다.
-select dno, job, trunc(avg(salary)) as "평균 급여" from employee group by dno, job order by dno;
-
---HAVING : 그룹 조건문, 그룹 선언 후에 사용한다.
-select job, sum(salary) from employee group by job having avg(salary) >= 2000;
-
---ROLLUP() : 전체의 합을 구하는 것이 아닌 중간 합계가 필요할 때 사용
-select job, sum(salary) from employee group by rollup(job);
-
---컬럼이 복수라면 컬럼 순서대로 그룹지어서 소연산을 진행
-select dno, job, sum(salary) from employee group by rollup(dno, job);
-
---select, from, where, group, having, order 순으로 입력.
+--다중행 연산자 : IN, =any, <any, >any, <all, >all
+--any : 그 중 하나라도 일치(or)
+--all : 전체에서 무조건 일치(and)
