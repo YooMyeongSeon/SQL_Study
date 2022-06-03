@@ -13,3 +13,6 @@
 ### chap13 : [사용자 권한](chapter/chap13.sql)
 ### chap14 : [PL_SQL](chapter/chap14.sql)
 ### chap15 : [프로시저와 함수와 트리거](chapter/chap15.sql)
+### chap16 : 데이터베이스 설계
+### chap17 : 관계 모델
+### chap18 : 정규화
