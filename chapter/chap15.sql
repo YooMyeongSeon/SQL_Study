@@ -1,5 +1,6 @@
 --프로시저 생성
 create or REPLACE PROCEDURE emp_info is
+
 --프로시저 내용 작성
     v_emp employee%rowtype;
     cursor c_emp is select eno, ename, salary, dno from employee;
